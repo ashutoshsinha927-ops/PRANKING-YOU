@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SECURITY BREACH — CRITICAL</title>
+<style>
+  :root{
+    --bg:#000;
+    --red:#ff2b2b;
+    --lime:#7CFF6B;
+    --muted:#444;
+    --glass: rgba(255,255,255,0.03);
+    --mono: "Courier New", Courier, monospace;
+  }
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--lime);font-family:var(--mono);overflow:hidden}
+  .wrap{display:grid;grid-template-columns:1fr 420px;gap:20px;height:100%;padding:28px;box-sizing:border-box}
+  .left{padding:18px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), var(--glass));box-shadow:0 8px 30px rgba(0,0,0,.6);overflow:auto}
+  .header{display:flex;justify-content:space-between;align-items:center}
+  .title{font-size:28px;color:var(--red);letter-spacing:1px}
+  .sub{color:var(--muted);font-size:12px}
+  #log{margin-top:18px;background:#050505;border:1px solid rgba(255,0,0,0.08);padding:12px;height:58vh;overflow:auto;font-size:13px;line-height:1.35}
+  .progress{height:14px;background:#111;border-radius:8px;margin-top:14px;overflow:hidden;border:1px solid rgba(255,255,255,0.02)}
+  .bar{height:100%;width:0%;background:linear-gradient(90deg,#ff3b3b,#ff9b3b);transition:width 400ms linear}
+  .right{padding:18px;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.02), var(--glass));box-shadow:0 8px 30px rgba(0,0,0,.6);display:flex;flex-direction:column;align-items:center;justify-content:flex-start}
+  .card{width:100%;padding:12px;border-radius:8px;background:rgba(255,255,255,0.01);margin-bottom:12px;border:1px solid rgba(255,255,255,0.02)}
+  .orange{color:#ff9b3b}
+  .big{font-size:18px}
+  .rec {position:relative;display:inline-block;padding:6px 8px;background:rgba(255,0,0,0.85);color:#fff;border-radius:6px;font-weight:700;margin-left:8px}
+  .cam{width:100%;height:210px;border-radius:6px;background:linear-gradient(180deg,#111,#070707);display:flex;align-items:center;justify-content:center;color:var(--muted);position:relative;overflow:hidden}
+  .cam .frame{position:absolute;left:10px;top:10px;right:10px;bottom:10px;border:2px dashed rgba(255,255,255,0.03);border-radius:6px}
+  .fakeface{width:70px;height:70px;border-radius:50%;background:linear-gradient(180deg,#222,#111);display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,0.06);font-size:40px}
+  .countdown{font-size:36px;color:var(--red);font-weight:700;margin-top:6px}
+  .btn{margin-top:10px;padding:8px 12px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.06);cursor:pointer;color:var(--lime)}
+  footer{position:fixed;left:18px;bottom:18px;color:var(--muted);font-size:12px}
+  /* small screens */
+  @media(max-width:920px){.wrap{grid-template-columns:1fr;}.right{order:-1}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <div class="left">
+    <div class="header">
+      <div>
+        <div class="title">⚠️ SECURITY BREACH — CRITICAL</div>
+        <div class="sub">Kernel level intrusion detected · Escalating to full system compromise</div>
+      </div>
+      <div class="sub">Session ID: <span id="sid">...</span></div>
+    </div>
+
+    <div id="log" aria-live="polite"></div>
+
+    <div class="progress">
+      <div class="bar" id="bar"></div>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-top:14px;align-items:center">
+      <div class="card" style="flex:1">
+        <div class="big orange">ACTIVE MODULES</div>
+        <div style="margin-top:8px;color:var(--muted);font-size:13px">
+          <div>• File crawler: <span id="mod-file">running</span></div>
+          <div>• Keylogger: <span id="mod-key">running</span></div>
+          <div>• Webcam sniffer: <span id="mod-cam">initializing</span></div>
+          <div>• Network exfiltration: <span id="mod-net">queued</span></div>
+        </div>
+      </div>
+
+      <div class="card" style="width:220px;text-align:center">
+        <div class="big">SYSTEM</div>
+        <div style="margin-top:6px;color:var(--muted)">OS: Windows 10 Enterprise</div>
+        <div style="margin-top:2px;color:var(--muted)">Uptime: <span id="uptime">...</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="right">
+    <div class="card cam" id="camArea">
+      <div class="frame"></div>
+      <div style="z-index:2;display:flex;flex-direction:column;align-items:center;gap:8px">
+        <div class="fakeface">👤</div>
+        <div style="font-size:13px;color:var(--muted)">Webcam: ACTIVATING</div>
+      </div>
+      <div style="position:absolute;left:12px;top:12px;color:var(--muted);font-size:12px">CAM 0</div>
+      <div style="position:absolute;right:12px;top:12px"><span class="rec">REC</span></div>
+    </div>
+
+    <div class="card" style="width:100%;text-align:center">
+      <div class="big">DATA EXFILTRATION</div>
+      <div style="margin-top:8px;color:var(--muted)">Detected sensitive files: <strong id="filesFound">0</strong></div>
+      <div class="countdown" id="count">00:30</div>
+      <button class="btn" id="panicBtn">STOP & SHOW PROOF</button>
+    </div>
+
+    <div class="card" style="width:100%;text-align:center">
+      <div style="font-size:13px;color:var(--muted)">IP:</div>
+      <div id="fakeIP" style="font-weight:700">... loading</div>
+    </div>
+  </div>
+</div>
+
+<footer>Press ESC or close tab to dismiss — this is a harmless simulation.</footer>
+
+<script>
+/* ---------- helper (safe fake values) ---------- */
+const logEl = document.getElementById('log');
+const bar = document.getElementById('bar');
+const sid = document.getElementById('sid');
+const uptime = document.getElementById('uptime');
+const filesFound = document.getElementById('filesFound');
+const modCam = document.getElementById('mod-cam');
+const modNet = document.getElementById('mod-net');
+const modFile = document.getElementById('mod-file');
+const modKey = document.getElementById('mod-key');
+const fakeIP = document.getElementById('fakeIP');
+const camArea = document.getElementById('camArea');
+const countEl = document.getElementById('count');
+
+function addLog(text, cls){
+  const p = document.createElement('div');
+  p.textContent = (new Date()).toLocaleTimeString() + "  " + text;
+  p.style.opacity = 0.98;
+  logEl.appendChild(p);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+function randInt(min,max){return Math.floor(Math.random()*(max-min+1))+min}
+
+/* set fake session id, ip, uptime */
+sid.textContent = Math.random().toString(36).slice(2,9).toUpperCase();
+fakeIP.textContent = `${randInt(100,199)}.${randInt(0,255)}.${randInt(0,255)}.${randInt(10,240)}`;
+uptime.textContent = `${randInt(0,12)}d ${randInt(0,23)}h`;
+
+/* simulated filenames */
+const sampleFiles = [
+  "C:\\Users\\ash\\Documents\\Taxes_2024.xlsx",
+  "C:\\Users\\ash\\Pictures\\vacation.jpg",
+  "C:\\Users\\ash\\Desktop\\bank_login.txt",
+  "C:\\Users\\ash\\Documents\\resume.docx",
+  "C:\\Users\\ash\\Downloads\\private_key.pem",
+  "C:\\Users\\ash\\Wallet\\wallet.dat",
+  "C:\\Users\\ash\\Notes\\passwords.txt"
+];
+
+/* main staged simulation */
+let percent = 0;
+let filesCount = 0;
+addLog("[BOOT] Kernel anomaly detected — escalating to root agent");
+addLog("[AGENT] Deploying stealth modules...");
+const interval = setInterval(()=>{
+  percent += randInt(3,9);
+  if(percent>100) percent = 100;
+  bar.style.width = percent + "%";
+
+  // staged messages
+  if(percent < 30){
+    addLog("[SCAN] Locating user profiles...");
+  } else if(percent < 60){
+    if(randInt(0,1)) {
+      const f = sampleFiles[randInt(0,sampleFiles.length-1)];
+      addLog("[FILE] Exfiltrating " + f);
+      filesCount++; filesFound.textContent = filesCount;
+    } else {
+      addLog("[KEYLOG] Capturing keyboard buffer...");
+    }
+  } else if(percent < 90){
+    addLog("[CAM] Attempting to enable webcam stream...");
+    modCam.textContent = "activating";
+    camArea.querySelector('.fakeface').textContent = '👁️';
+  } else {
+    addLog("[NET] Sending package to remote drop...");
+    modNet.textContent = "sending";
+  }
+
+  if(percent >= 100){
+    addLog("[DONE] Exfiltration cycle complete.");
+    clearInterval(interval);
+    // aggressive final stage
+    setTimeout(()=>startFinalStage(),900);
+  }
+},900);
+
+/* final dramatic stage */
+function startFinalStage(){
+  let t = 30; // seconds until "critical"
+  modFile.textContent = "corrupted";
+  modKey.textContent = "tampered";
+  modCam.textContent = "streaming";
+  addLog("[CRITICAL] Encrypting user documents...");
+  const timer = setInterval(()=>{
+    countEl.textContent = "00:" + (t<10? "0"+t : t);
+    if(t%3===0){
+      // flash additional frightening logs
+      addLog("[ENCRYPT] " + sampleFiles[randInt(0,sampleFiles.length-1)] + " -> encrypted.aes");
+    }
+    t--;
+    if(t < 0){
+      clearInterval(timer);
+      addLog("[ALERT] RANSOM NOTE CREATED - check desktop for instructions");
+      // final visual
+      document.body.style.background = "#120000";
+      document.querySelector('.title').textContent = "!! SYSTEM COMPROMISED !!";
+      // reveal "proof" button left to user
+      // keep final state: do not auto-redirect or real harm
+    }
+  },1000);
+}
+
+/* Panic / Proof button */
+document.getElementById('panicBtn').addEventListener('click', ()=>{
+  // Show a calming proof modal (still fake) and immediately stop simulation
+  addLog("[USER] Proof requested. Pausing modules...");
+  bar.style.width = "100%";
+  filesFound.textContent = filesFound.textContent + " (simulated)";
+  const modal = document.createElement('div');
+  modal.style.position='fixed';modal.style.left='0';modal.style.top='0';modal.style.width='100%';modal.style.height='100%';
+  modal.style.display='flex';modal.style.alignItems='center';modal.style.justifyContent='center';modal.style.backdropFilter='blur(4px)';
+  modal.innerHTML = `<div style="background:#0b0b0b;border:1px solid rgba(255,255,255,0.04);padding:22px;border-radius:10px;color:var(--lime);max-width:720px">
+    <h2 style="color:var(--red);margin:0 0 8px 0">SIMULATION PAUSED — NO REAL ACCESS</h2>
+    <p style="color:var(--muted)">This page is a visual simulation only. It does not access your files, camera, or network. To stop this page, close this tab.</p>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:16px">
+      <button id="closeModal" style="padding:8px 12px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--lime);cursor:pointer">Close</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
+  document.getElementById('closeModal').addEventListener('click', ()=>modal.remove());
+});
+
+/* accessibility: allow ESC to exit fullscreen (browser handles it) */
+document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') document.exitFullscreen?.(); });
+
+/* try to go fullscreen (may require user gesture in some browsers) */
+document.documentElement.requestFullscreen?.().catch(()=>{ /* ignored */ });
+
+/* small safety: prevent accidental form submission etc. */
+window.onbeforeunload = null;
+</script>
+</body>
+</html>
